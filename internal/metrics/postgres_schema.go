@@ -14,6 +14,13 @@ import (
 //go:embed postgres_schema.sql
 var sqlConfigSchema string
 
+// InitSchema creates the pgwatch configuration schema and all tables (metric,
+// preset, source, migration) if they do not already exist. It is idempotent and
+// safe to call multiple times; it returns immediately when the schema is present.
+func InitSchema(ctx context.Context, conn db.PgxIface) error {
+	return initSchema(ctx, conn)
+}
+
 var initSchema = func(ctx context.Context, conn db.PgxIface) (err error) {
 	var exists bool
 	if exists, err = db.DoesSchemaExist(ctx, conn, "pgwatch"); err != nil || exists {

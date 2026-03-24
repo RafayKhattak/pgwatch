@@ -8,6 +8,7 @@ import (
 	"errors"
 
 	"github.com/cybertec-postgresql/pgwatch/v5/internal/db"
+	"github.com/cybertec-postgresql/pgwatch/v5/internal/metrics"
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 )
@@ -15,6 +16,9 @@ import (
 func NewPostgresSourcesReaderWriter(ctx context.Context, connstr string) (ReaderWriter, error) {
 	conn, err := db.New(ctx, connstr)
 	if err != nil {
+		return nil, err
+	}
+	if err := metrics.InitSchema(ctx, conn); err != nil {
 		return nil, err
 	}
 	return NewPostgresSourcesReaderWriterConn(ctx, conn)
